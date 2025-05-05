@@ -1,0 +1,67 @@
+#include <iostream>
+#include <ctype.h> // for isalpha()
+using namespace std;
+
+struct Node {
+    char data;
+    Node *left, *right;
+};
+
+// Stack (manual)
+Node* stack[30];
+int top = -1;
+
+void push(Node* x) { stack[++top] = x; }
+Node* pop() { return stack[top--]; }
+
+Node* createTree(char pre[], int& i) {
+    Node* node = new Node;
+    node->data = pre[i++];
+    node->left = node->right = NULL;
+    if (isalpha(node->data)) return node; // it's operand
+    node->left = createTree(pre, i);
+    node->right = createTree(pre, i);
+    return node;
+}
+
+void postorderNonRec(Node* root) {
+    Node* s1[30], *s2[30];
+    int t1 = -1, t2 = -1;
+    s1[++t1] = root;
+    while (t1 >= 0) {
+        Node* curr = s1[t1--];
+        s2[++t2] = curr;
+        if (curr->left) s1[++t1] = curr->left;
+        if (curr->right) s1[++t1] = curr->right;
+    }
+    while (t2 >= 0)
+        cout << s2[t2--]->data << " ";
+}
+
+void deleteTree(Node* root) {
+    if (root == NULL) return;
+    deleteTree(root->left);
+    deleteTree(root->right);
+    delete root;
+}
+
+int main() {
+    char expr[30];
+    cout << "Enter prefix expression: ";
+    cin >> expr;
+
+    int i = 0;
+    Node* root = createTree(expr, i);
+
+    cout << "Postorder traversal: ";
+    postorderNonRec(root);
+
+    deleteTree(root);
+    cout << "\nTree deleted successfully.\n";
+
+    return 0;
+}
+
+Enter prefix expression: +-a*bc/def
+Postorder traversal: a b c * - d e / + 
+Tree deleted successfully.

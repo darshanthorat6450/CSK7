@@ -1,0 +1,68 @@
+class Hash:
+    MAX = 10
+
+    def __init__(self):
+        self.arr = [None] * self.MAX
+        self.comparisons = [0] * self.MAX  # To store comparisons for each key
+
+    def hash_fun(self, num):
+        return num % self.MAX  # Simple hash function
+
+    def insert(self):
+        num = int(input("Enter the number: "))
+        index = self.hash_fun(num)
+        i = 0
+        comp = 1  # Initial comparison count
+
+        # Check if the initial bucket is empty
+        if self.arr[index] is None:
+            self.arr[index] = num
+            self.comparisons[index] = comp
+            return
+
+        # Use quadratic probing to find the next empty slot
+        while self.arr[(index + i * i) % self.MAX] is not None:
+            comp += 1
+            i += 1
+            if i == self.MAX:
+                print("Hash table is full.")
+                return
+
+        new_index = (index + i * i) % self.MAX
+        self.arr[new_index] = num
+        self.comparisons[new_index] = comp  # Store total comparisons for this key
+
+    def display_comparisons(self):
+        total_comparisons = 0
+        for i in range(self.MAX):
+            if self.arr[i] is not None:
+                print(f"Key {self.arr[i]} required {self.comparisons[i]} comparisons.")
+                total_comparisons += self.comparisons[i]
+
+        print(f"Total comparisons for all keys: {total_comparisons}")
+
+    def display(self):
+        for i in range(self.MAX):
+            print(f"{i} ------> {self.arr[i] if self.arr[i] is not None else 'NULL'}")
+
+def main():
+    h = Hash()
+    while True:
+        print("\nMenu:\n1. Insert\n2. Display\n3. Display Comparisons\n0. Exit")
+        choice = int(input("Enter your choice: "))
+
+        match choice:
+            case 1:
+                h.insert()
+            case 2:
+                h.display()
+            case 3:
+                h.display_comparisons()
+            case 0:
+                print("Exiting...")
+                break
+            case _:
+                print("Invalid choice! Try again.")
+
+if __name__ == "__main__":
+    main()

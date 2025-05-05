@@ -1,0 +1,72 @@
+class Hash:
+    MAX = 10
+
+    def __init__(self):
+        self.arr = [None] * self.MAX
+        self.comparisons = [0] * self.MAX  # To store the number of comparisons for each key
+
+    def hash_fun(self, num):
+        return num % self.MAX  # Simple hash function
+
+    def insert(self):
+        num = int(input("Enter the number: "))
+        index = self.hash_fun(num)
+        start = index
+        comp = 1  # Initial comparison to check the first slot
+
+        if self.arr[index] is None:  # If bucket is empty, insert directly
+            self.arr[index] = num
+            self.comparisons[index] = comp
+            print(f"Number {num} inserted with {comp} comparisons.")
+            return
+
+        # Collision handling using linear probing
+        while self.arr[index] is not None:
+            index = (index + 1) % self.MAX
+            comp += 1
+            if index == start:
+                print(f"Hash table is full. Unable to insert {num}")
+                return
+
+        self.arr[index] = num
+        self.comparisons[index] = comp  # Store comparisons for this key
+        print(f"Number {num} inserted with {comp} comparisons.")
+
+    def display(self):
+        for i in range(self.MAX):
+            if self.arr[i] is None:
+                print(f"{i} ------> NULL")
+            else:
+                print(f"{i} ------> {self.arr[i]}")
+
+    def display_comparisons(self):
+        total_comparisons = 0
+        print("\nComparisons for each key:")
+        for i in range(self.MAX):
+            if self.arr[i] is not None:
+                print(f"Key {self.arr[i]} required {self.comparisons[i]} comparisons.")
+                total_comparisons += self.comparisons[i]
+
+        print(f"Total comparisons: {total_comparisons}")
+
+def main():
+    h = Hash()
+    while True:
+        print("\nMenu:\n1. Insert\n2. Display\n3. Display Comparisons\n0. Exit")
+        choice = int(input("Enter your choice: "))
+
+        match choice:
+            case 1:
+                h.insert()
+            case 2:
+                h.display()
+            case 3:
+                h.display_comparisons()
+            case 0:
+                print("Exiting...")
+                break
+            case _:
+                print("Invalid choice! Try again.")
+
+if __name__ == "__main__":
+    main()

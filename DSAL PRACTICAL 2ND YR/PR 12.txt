@@ -1,0 +1,170 @@
+#include <iostream>
+#include <string.h>
+#define max 10
+using namespace std;
+
+struct node {
+    char name[15];
+    long int mobno;
+    int chain;
+
+    node() {
+        strcpy(name, "-");
+        mobno = 0;
+        chain = -1;
+    }
+};
+
+class hasht {
+    node ht[max];
+public:
+    int hashfun(long int);
+    void insert();
+    void display();
+    void search();
+    void del();
+};
+
+int hasht::hashfun(long int num) {
+    return (num % max);
+}
+
+void hasht::insert() {
+    node temp;
+    cout << "Enter name and mobile number of a person:\n";
+    cin >> temp.name >> temp.mobno;
+
+    int home = hashfun(temp.mobno);
+
+    if (ht[home].mobno == 0) {
+        ht[home] = temp;
+        return;
+    }
+
+    int existing_home = hashfun(ht[home].mobno);
+
+    if (existing_home != home) {
+        // Replace current element with the new one and relocate the existing
+        node displaced = ht[home];
+        ht[home] = temp;
+
+        // Find new position for displaced
+        int i = (home + 1) % max;
+        while (ht[i].mobno != 0 && i != home) {
+            i = (i + 1) % max;
+        }
+
+        if (ht[i].mobno == 0) {
+            ht[i] = displaced;
+
+            // Update chaining
+            int pre = existing_home;
+            while (ht[pre].chain != home) {
+                pre = ht[pre].chain;
+            }
+            ht[pre].chain = i;
+        } else {
+            cout << "Hash table is full!\n";
+        }
+    } else {
+        // Normal insertion with chaining
+        int i = (home + 1) % max;
+        while (ht[i].mobno != 0 && i != home) {
+            i = (i + 1) % max;
+        }
+
+        if (ht[i].mobno == 0) {
+            ht[i] = temp;
+
+            // Add to chain
+            int pre = home;
+            while (ht[pre].chain != -1) {
+                pre = ht[pre].chain;
+            }
+            ht[pre].chain = i;
+        } else {
+            cout << "Hash table is full!\n";
+        }
+    }
+}
+
+void hasht::display() {
+    cout << "Index\tName\t\tMobile Number\tChain\n";
+    for (int i = 0; i < max; i++) {
+        cout << i << "\t" << ht[i].name << "\t\t" << ht[i].mobno << "\t\t" << ht[i].chain << endl;
+    }
+}
+
+void hasht::search() {
+    long int num;
+    cout << "Enter mobile number to search: ";
+    cin >> num;
+
+    int ind = hashfun(num);
+    while (ind != -1) {
+        if (ht[ind].mobno == num) {
+            cout << "Mobile number found at index: " << ind << endl;
+            return;
+        }
+        ind = ht[ind].chain;
+    }
+    cout << "Mobile number not found.\n";
+}
+
+void hasht::del() {
+    long int num;
+    cout << "Enter mobile number to delete: ";
+    cin >> num;
+
+    int home = hashfun(num);
+    int prev = -1, curr = home;
+
+    while (curr != -1) {
+        if (ht[curr].mobno == num) {
+            if (prev != -1) {
+                ht[prev].chain = ht[curr].chain;
+            }
+
+            // Clear current
+            strcpy(ht[curr].name, "-");
+            ht[curr].mobno = 0;
+            ht[curr].chain = -1;
+            cout << "Record deleted.\n";
+            return;
+        }
+        prev = curr;
+        curr = ht[curr].chain;
+    }
+    cout << "Number not found.\n";
+}
+
+int main() {
+    hasht h;
+    int cho;
+    do {
+        cout << "\n1. Insert\n2. Display\n3. Search\n4. Delete\n5. Exit\nEnter your choice: ";
+        cin >> cho;
+
+        switch (cho) {
+            case 1:
+                h.insert();
+                break;
+            case 2:
+                h.display();
+                break;
+            case 3:
+                h.search();
+                break;
+            case 4:
+                h.del();
+                break;
+            case 5:
+                cout << "Exiting...\n";
+                break;
+            default:
+                cout << "Invalid choice.\n";
+        }
+    } while (cho != 5);
+
+    return 0;
+}
